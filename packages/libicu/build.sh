@@ -15,7 +15,18 @@ TERMUX_PKG_HOSTBUILD=true
 TERMUX_PKG_EXTRA_HOSTBUILD_CONFIGURE_ARGS="--disable-samples --disable-tests"
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="--disable-samples --disable-tests --with-cross-build=$TERMUX_PKG_HOSTBUILD_DIR"
 
+ICU_DATA_FILTER_FILE=/tmp/filter.json
+echo '{"localeFilter":{"filterType":"locale","whitelist":["en"]}}' > "$ICU_DATA_FILTER_FILE"
+
 termux_step_post_get_source() {
 	TERMUX_PKG_SRCDIR+="/source"
 	find . -type f | xargs touch
+    
+    
+    rm -rf source/data
+    curl -L -o /tmp/data.zip "https://github.com/unicode-org/icu/releases/download/release-${TERMUX_PKG_VERSION//./-}/icu4c-${TERMUX_PKG_VERSION//./_}-data.zip"
+    unzip /tmp/data.zip -d source
+    ls -al source/data
+    ICU_DATA_FILTER_FILE="$ICU_DATA_FILTER_FILE" ./source/runConfigureICU Linux
+    
 }
