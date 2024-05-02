@@ -25,6 +25,13 @@ termux_step_post_get_source() {
 	curl -o $TERMUX_PKG_SRCDIR/LICENSE -L https://raw.githubusercontent.com/unicode-org/icu/release-${TERMUX_PKG_VERSION//./-}/LICENSE
 	TERMUX_PKG_SRCDIR+="/source"
 	find . -type f | xargs touch
+    
+    echo '{"localeFilter":{"filterType":"locale","whitelist":["en"]}}' > filter.json
+    rm -rf source/data
+    curl -L -o /tmp/data.zip "https://github.com/unicode-org/icu/releases/download/release-${TERMUX_PKG_VERSION//./-}/icu4c-${TERMUX_PKG_VERSION//./_}-data.zip"
+    unzip /tmp/data.zip -d source
+    ls -al source/data
+    ICU_DATA_FILTER_FILE=filter.json ./source/runConfigureICU Linux
 }
 
 termux_step_post_massage() {
