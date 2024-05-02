@@ -7,10 +7,10 @@ TERMUX_PKG_LICENSE_FILE="../LICENSE"
 TERMUX_PKG_MAINTAINER="@termux"
 # Never forget to always bump revision of reverse dependencies and rebuild them
 # when bumping "major" version.
-TERMUX_PKG_VERSION="74.2"
+TERMUX_PKG_VERSION="72.1"
 TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/unicode-org/icu/releases/download/release-${TERMUX_PKG_VERSION//./-}/icu4c-${TERMUX_PKG_VERSION//./_}-src.tgz
-TERMUX_PKG_SHA256=5e4fb11d6a3e6b85afb55de8da8a71538f1d8fd64fce893986b37d60e5bb0091
+TERMUX_PKG_SHA256=a2d2d38217092a7ed56635e34467f92f976b370e20182ad325edea6681a71d68
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_UPDATE_METHOD=repology
 TERMUX_PKG_DEPENDS="libc++"
@@ -20,23 +20,17 @@ TERMUX_PKG_HOSTBUILD=true
 TERMUX_PKG_EXTRA_HOSTBUILD_CONFIGURE_ARGS="--disable-samples --disable-tests"
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="--disable-samples --disable-tests --with-cross-build=$TERMUX_PKG_HOSTBUILD_DIR"
 
+echo '{"localeFilter":{"filterType":"locale","whitelist":["en"]}}' > /tmp/filter.json
+export ICU_DATA_FILTER_FILE=/tmp/filter.json
+
 termux_step_post_get_source() {
-	rm $TERMUX_PKG_SRCDIR/LICENSE
-	curl -o $TERMUX_PKG_SRCDIR/LICENSE -L https://raw.githubusercontent.com/unicode-org/icu/release-${TERMUX_PKG_VERSION//./-}/LICENSE
 	TERMUX_PKG_SRCDIR+="/source"
 	find . -type f | xargs touch
     
-    echo '{"localeFilter":{"filterType":"locale","whitelist":["en"]}}' > filter.json
-    rm -rf source/data
-    curl -L -o /tmp/data.zip "https://github.com/unicode-org/icu/releases/download/release-${TERMUX_PKG_VERSION//./-}/icu4c-${TERMUX_PKG_VERSION//./_}-data.zip"
-    unzip /tmp/data.zip -d source
-    ls -al source/data
-    ICU_DATA_FILTER_FILE=filter.json ./source/runConfigureICU Linux
+	rm -rf source/data
+	curl -L -o /tmp/data.zip "https://github.com/unicode-org/icu/releases/download/release-${TERMUX_PKG_VERSION//./-}/icu4c-${TERMUX_PKG_VERSION//./_}-data.zip"
+	unzip /tmp/data.zip -d source
+	ls -al source/data
+	ICU_DATA_FILTER_FILE=/tmp/filter.json ./source/runConfigureICU Linux
 }
 
-termux_step_post_massage() {
-	local _GUARD_FILE="lib/libicuuc.so.74"
-	if [ ! -e "${_GUARD_FILE}" ]; then
-		termux_error_exit "Error: file ${_GUARD_FILE} not found."
-	fi
-}
