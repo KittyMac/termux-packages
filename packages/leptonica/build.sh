@@ -11,6 +11,16 @@ TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_DEPENDS="giflib, libjpeg-turbo, libpng, libtiff, libwebp, openjpeg, zlib"
 TERMUX_PKG_BREAKS="leptonica-dev"
 TERMUX_PKG_REPLACES="leptonica-dev"
+TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
+--without-zlib
+--without-jpeg
+--without-giflib
+--without-libtiff
+--without-libwebp
+--without-libwebpmux
+--without-libopenjpeg
+--disable-programs
+"
 
 termux_step_post_get_source() {
 	# Do not forget to bump revision of reverse dependencies and rebuild them

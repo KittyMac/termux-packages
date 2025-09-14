@@ -25,6 +25,15 @@ termux_step_post_get_source() {
 	curl -o $TERMUX_PKG_SRCDIR/LICENSE -L https://raw.githubusercontent.com/unicode-org/icu/release-${TERMUX_PKG_VERSION//./-}/LICENSE
 	TERMUX_PKG_SRCDIR+="/source"
 	find . -type f | xargs touch
+    
+    pushd "${TERMUX_PKG_SRCDIR}"
+    rm -rf data
+    curl -o data.zip -L https://github.com/unicode-org/icu/releases/download/release-77-1/icu4c-77_1-data.zip
+    unzip data.zip
+    popd
+
+    # HACK TO FORCE ICU_DATA_FILTER_FILE IN THE CONFIGURATION FILE
+    sed -i -e 's|\$ICU_DATA_FILTER_FILE|/home/builder/termux-packages/packages/libicu/data_filters.json|g' "${TERMUX_PKG_SRCDIR}/configure"
 }
 
 termux_step_post_massage() {
